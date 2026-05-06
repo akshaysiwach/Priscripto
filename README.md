@@ -1,5 +1,21 @@
 🌐 Live URLs
-User Interface: https://prescripto-frontend-bjff.onrender.com/
-Admin & Doctor Interface: https://prescripto-admin-u840.onrender.com/
-//cd "C:\Users\HP\Desktop\DocQueue code\DocQueue-main\backend"   2 npm start
-//cd "C:\Users\HP\Desktop\DocQueue code\DocQueue-main\frontend"  2 npm run dev-
+User Interface: https://frontend-two-gamma-lovhdr0zt8.vercel.app
+Admin & Doctor Interface: https://priscripto-admin-five.vercel.app
+Backend API: https://priscripto-backend-one.vercel.app
+
+## Getting Started
+
+### Setup Backend:
+cd "C:\Users\HP\Desktop\PrescriptoFinalYearProject\backend"
+npm install
+npm start
+
+### Setup Frontend:
+cd "C:\Users\HP\Desktop\PrescriptoFinalYearProject\frontend"
+npm install
+npm run dev
+
+### Setup Admin:
+cd "C:\Users\HP\Desktop\PrescriptoFinalYearProject\admin"
+npm install
+npm run dev
