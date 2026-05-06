@@ -150,13 +150,13 @@ const Login = () => {
       </div>
 
       <form onSubmit={onSubmitHandler} className="bg-white border border-slate-200 shadow-xl shadow-slate-200/60 rounded-[28px] p-8 sm:p-10">
-        <div className="flex gap-2 flex-wrap">
-          {["Admin", "Doctor", "Register Doctor"].map((item) => (
+        <div className="flex flex-wrap gap-2">
+          {['Admin', 'Doctor', 'Register Doctor'].map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => setMode(item)}
-              className={`rounded-full px-4 py-2 text-sm ${mode === item ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}
+              className={`rounded-full px-4 py-2 text-sm whitespace-nowrap ${mode === item ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}
             >
               {item}
             </button>
@@ -176,8 +176,8 @@ const Login = () => {
           </button>
         )} */}
 
-        {mode === "Register Doctor" && (
-          <div className="mt-4 rounded-full border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+        {mode === "Register Doctor" ? (
+          <div className="grid gap-4 mt-4 sm:grid-cols-2">
             <input value={name} onChange={(e) => setName(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3" placeholder="Full name" required />
             <input value={speciality} onChange={(e) => setSpeciality(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3" placeholder="Speciality" required />
             <input value={degree} onChange={(e) => setDegree(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3" placeholder="Degree" required />
@@ -186,18 +186,22 @@ const Login = () => {
             <input value={city} onChange={(e) => setCity(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3" placeholder="City" required />
             <input value={latitude} onChange={(e) => setLatitude(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3" placeholder="Latitude" required />
             <input value={longitude} onChange={(e) => setLongitude(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3" placeholder="Longitude" required />
-            <textarea value={about} onChange={(e) => setAbout(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3 md:col-span-2" placeholder="Professional summary" rows={4} required />
+            <input onChange={(e) => setEmail(e.target.value)} value={email} className="border border-slate-200 rounded-xl w-full p-3" type="email" placeholder="Email" required />
+            <input onChange={(e) => setPassword(e.target.value)} value={password} className="border border-slate-200 rounded-xl w-full p-3" type="password" placeholder="Password" required />
+            <textarea value={about} onChange={(e) => setAbout(e.target.value)} className="border border-slate-200 rounded-xl w-full p-3 sm:col-span-2" placeholder="Professional summary" rows={4} required />
           </div>
+        ) : (
+          <>
+            <div className="w-full mt-4">
+              <p>Email</p>
+              <input onChange={(e) => setEmail(e.target.value)} value={email} className="border border-slate-200 rounded-xl w-full p-3 mt-1" type="email" required />
+            </div>
+            <div className="w-full mt-4">
+              <p>Password</p>
+              <input onChange={(e) => setPassword(e.target.value)} value={password} className="border border-slate-200 rounded-xl w-full p-3 mt-1" type="password" required />
+            </div>
+          </>
         )}
-
-        <div className="w-full mt-4">
-          <p>Email</p>
-          <input onChange={(e) => setEmail(e.target.value)} value={email} className="border border-slate-200 rounded-xl w-full p-3 mt-1" type="email" required />
-        </div>
-        <div className="w-full mt-4">
-          <p>Password</p>
-          <input onChange={(e) => setPassword(e.target.value)} value={password} className="border border-slate-200 rounded-xl w-full p-3 mt-1" type="password" required />
-        </div>
 
         {(mode === "Admin" || mode === "Doctor") && (
           <button type="button" onClick={requestForgotPassword} className="mt-3 text-sm text-primary underline">

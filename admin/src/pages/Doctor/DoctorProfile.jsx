@@ -4,28 +4,40 @@ import { AppContext } from '../../context/AppContext'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 
+const DEFAULT_PROFILE_IMAGE = 'https://i.pravatar.cc/150?img=47'
+
 const DoctorProfile = () => {
 
     const { dToken, profileData, setProfileData, getProfileData } = useContext(DoctorContext)
     const { currency, backendUrl } = useContext(AppContext)
     const [isEdit, setIsEdit] = useState(false)
+    const [image, setImage] = useState(null)
 
     const updateProfile = async () => {
 
         try {
+            const formData = new FormData()
+            formData.append('docId', profileData._id)
+            formData.append('address', JSON.stringify(profileData.address))
+            formData.append('fees', profileData.fees)
+            formData.append('about', profileData.about)
+            formData.append('available', profileData.available)
 
-            const updateData = {
-                address: profileData.address,
-                fees: profileData.fees,
-                about: profileData.about,
-                available: profileData.available
+            if (image) {
+                formData.append('image', image)
             }
 
-            const { data } = await axios.post(backendUrl + '/api/doctor/update-profile', updateData, { headers: { dToken } })
+            const { data } = await axios.post(backendUrl + '/api/doctor/update-profile', formData, {
+                headers: { dToken },
+            })
 
             if (data.success) {
                 toast.success(data.message)
                 setIsEdit(false)
+                setImage(null)
+                if (data.profileData) {
+                    setProfileData(data.profileData)
+                }
                 getProfileData()
             } else {
                 toast.error(data.message)
@@ -50,7 +62,22 @@ const DoctorProfile = () => {
         <div>
             <div className='flex flex-col gap-4 m-5'>
                 <div>
-                    <img className='bg-primary/80 w-full sm:max-w-64 rounded-lg' src={profileData.image} alt="" />
+                    <label htmlFor='doctorImage' className='block cursor-pointer'>
+                        <img
+                            className='bg-primary/80 w-full sm:max-w-64 rounded-lg'
+                            src={image ? URL.createObjectURL(image) : profileData.image || DEFAULT_PROFILE_IMAGE}
+                            alt=""
+                        />
+                    </label>
+                    {isEdit && (
+                        <input
+                            id='doctorImage'
+                            type='file'
+                            accept='image/*'
+                            className='hidden'
+                            onChange={(e) => setImage(e.target.files[0])}
+                        />
+                    )}
                 </div>
 
                 <div className='flex-1 border border-stone-100 rounded-lg p-8 py-7 bg-white'>

@@ -4,6 +4,7 @@ import appointmentModel from "../models/appointmentModel.js";
 import { defaultProfileImage } from "../config/demoCredentials.js";
 import { createPasswordResetToken, hashResetToken, signToken } from "../utils/auth.js";
 import { sendPasswordResetLink } from "../utils/mailer.js";
+import { uploadProfileImage } from "../utils/imageUpload.js";
 
 const buildDoctorToken = (doctor) =>
     signToken({
@@ -323,19 +324,29 @@ const doctorProfile = async (req, res) => {
 const updateDoctorProfile = async (req, res) => {
     try {
         const { docId, fees, address, about, available, certificates, availabilitySchedule, location, phone } = req.body;
+        const imageFile = req.file;
 
-        await doctorModel.findByIdAndUpdate(docId, {
+        const updates = {
             fees: Number(fees),
-            address,
+            address: typeof address === "string" ? JSON.parse(address) : address,
             about,
-            available,
+            available: available === "true" || available === true || available === "on",
             phone,
-            certificates,
-            availabilitySchedule,
-            location,
-        });
+            certificates: typeof certificates === "string" ? JSON.parse(certificates) : certificates,
+            availabilitySchedule: typeof availabilitySchedule === "string" ? JSON.parse(availabilitySchedule) : availabilitySchedule,
+            location: typeof location === "string" ? JSON.parse(location) : location,
+        };
 
-        res.json({ success: true, message: "Profile Updated" });
+        if (imageFile) {
+            const imageUrl = await uploadProfileImage(imageFile);
+            if (imageUrl) {
+                updates.image = imageUrl;
+            }
+        }
+
+        const updatedDoctor = await doctorModel.findByIdAndUpdate(docId, updates, { new: true });
+
+        res.json({ success: true, message: "Profile Updated", profileData: updatedDoctor });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: error.message });

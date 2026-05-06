@@ -4,6 +4,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { assets } from "../assets/assets";
 
+const DEFAULT_PROFILE_IMAGE = 'https://i.pravatar.cc/150?img=47'
+
 const MyProfile = () => {
   const [isEdit, setIsEdit] = useState(false);
 
@@ -34,6 +36,12 @@ const MyProfile = () => {
       if (data.success) {
         toast.success(data.message);
         await loadUserProfileData();
+        if (image) {
+          setUserData((prev) => ({
+            ...prev,
+            image: URL.createObjectURL(image),
+          }));
+        }
         setIsEdit(false);
         setImage(false);
       } else {
@@ -52,7 +60,7 @@ const MyProfile = () => {
           <div className="inline-block relative cursor-pointer">
             <img
               className="w-36 rounded opacity-75"
-              src={image ? URL.createObjectURL(image) : userData.image}
+              src={image ? URL.createObjectURL(image) : userData.image || DEFAULT_PROFILE_IMAGE}
               alt=""
             />
             <img
@@ -69,7 +77,7 @@ const MyProfile = () => {
           />
         </label>
       ) : (
-        <img className="w-36 rounded" src={userData.image} alt="" />
+        <img className="w-36 rounded" src={userData.image || DEFAULT_PROFILE_IMAGE} alt="" />
       )}
 
       {isEdit ? (

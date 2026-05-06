@@ -223,14 +223,14 @@ const updateProfile = async (req, res) => {
             medications: normalizeArrayField(medications),
         };
 
-        await userModel.findByIdAndUpdate(userId, updates);
+        let updatedUser = await userModel.findByIdAndUpdate(userId, updates, { new: true }).select("-password -resetPasswordToken -resetPasswordExpires");
 
         if (imageFile && process.env.CLOUDINARY_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_SECRET_KEY) {
             const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
-            await userModel.findByIdAndUpdate(userId, { image: imageUpload.secure_url });
+            updatedUser = await userModel.findByIdAndUpdate(userId, { image: imageUpload.secure_url }, { new: true }).select("-password -resetPasswordToken -resetPasswordExpires");
         }
 
-        return res.json({ success: true, message: "Profile Updated" });
+        return res.json({ success: true, message: "Profile Updated", userData: updatedUser });
     } catch (error) {
         console.log(error);
         return res.json({ success: false, message: error.message });

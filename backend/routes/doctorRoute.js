@@ -1,4 +1,5 @@
 import express from "express";
+import upload from "../middleware/multer.js";
 import {
     loginDoctor,
     registerDoctor,
@@ -30,6 +31,6 @@ doctorRouter.post("/change-availability", authDoctor, changeAvailablity);
 doctorRouter.post("/complete-appointment", authDoctor, appointmentComplete);
 doctorRouter.get("/dashboard", authDoctor, doctorDashboard);
 doctorRouter.get("/profile", authDoctor, doctorProfile);
-doctorRouter.post("/update-profile", authDoctor, updateDoctorProfile);
+doctorRouter.post("/update-profile", upload.single("image"), authDoctor, updateDoctorProfile);
 
 export default doctorRouter;

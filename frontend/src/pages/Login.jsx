@@ -62,30 +62,24 @@ const Login = () => {
 
   return (
     <div className="min-h-[80vh] grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
-      <div className="hidden lg:flex flex-col justify-between rounded-[32px] bg-gradient-to-br from-cyan-950 via-slate-900 to-sky-800 text-white p-10 min-h-[540px]">
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-cyan-200/80">Prescripto Patient Portal</p>
-          <h1 className="text-5xl font-semibold leading-tight mt-6">Secure patient login with medical profile, password recovery, and booking history.</h1>
-          <p className="mt-6 max-w-xl text-slate-200">
-            Doctors shown here are limited to admin-created or admin-approved profiles only.
-          </p>
-        </div>
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-          <p className="text-cyan-200 text-sm">Patient Demo Credentials</p>
-          <p className="mt-3 font-mono text-white">patient@prescripto.demo</p>
-          <p className="font-mono text-slate-300">Patient@12345</p>
-        </div>
+      <div className="hidden lg:block rounded-[32px] bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-900 text-white p-10 min-h-[560px]">
+        <p className="text-xs uppercase tracking-[0.35em] text-cyan-200/80">Prescripto Secure Access</p>
+        <h1 className="text-5xl font-semibold leading-tight mt-6">
+    Seamless doctor appointment booking, smart scheduling, and secure patient management.</h1>
+        <p className="mt-6 max-w-xl text-base text-slate-200">
+              Book appointments with verified doctors, manage schedules efficiently, and ensure a smooth healthcare experience for both patients and professionals.
+        </p>
       </div>
 
       <form onSubmit={onSubmitHandler} className="bg-white border border-slate-200 rounded-[28px] shadow-xl shadow-slate-200/70 p-8 sm:p-10">
         <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Patient Access</p>
         <p className="text-3xl font-semibold mt-3">{state === "Sign Up" ? "Create Account" : "Login"}</p>
         <p className="text-slate-500 mt-2">Sign in to manage appointments, prescriptions, and medical details.</p>
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <button type="button" onClick={fillDemoCredentials} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
             Use Patient Demo
           </button>
-        </div>
+        </div> */}
         {state === "Sign Up" && (
           <div className="w-full mt-6">
             <p>Full Name</p>
