@@ -1,21 +1,55 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import Chat from "../components/Chat";
 
 const Doctors = () => {
   const { speciality } = useParams();
 
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [chatDoctor, setChatDoctor] = useState(null);
+  const [loadingChatRoom, setLoadingChatRoom] = useState(false);
   const navigate = useNavigate();
 
-  const { doctors } = useContext(AppContext);
+  const { doctors, backendUrl, token } = useContext(AppContext);
 
   const applyFilter = () => {
     if (speciality) {
       setFilterDoc(doctors.filter((doc) => doc.speciality === speciality));
     } else {
       setFilterDoc(doctors);
+    }
+  };
+
+  const openChatWithDoctor = async (doctor, event) => {
+    event.stopPropagation();
+    if (!token) {
+      alert("Please log in to chat with a doctor.");
+      return;
+    }
+    try {
+      setLoadingChatRoom(true);
+      const { data } = await axios.post(
+        backendUrl + "/api/chat/room",
+        { doctorId: doctor._id },
+        { headers: { token } }
+      );
+      if (data.success) {
+        setCurrentRoom(data.room);
+        setChatDoctor(doctor);
+        setShowChat(true);
+      } else {
+        alert(data.message || "Unable to open chat room.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Unable to open chat room. Please try again.");
+    } finally {
+      setLoadingChatRoom(false);
     }
   };
 
@@ -145,11 +179,35 @@ const Doctors = () => {
                   {item.name}
                 </p>
                 <p className="text-[#5C5C5C] text-sm">{item.speciality}</p>
+                <div className="mt-4 flex gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={(event) => openChatWithDoctor(item, event)}
+                    disabled={loadingChatRoom}
+                    className="rounded-full border border-blue-500 text-blue-500 px-4 py-2 text-sm font-medium hover:bg-blue-500 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loadingChatRoom ? "Opening chat..." : "Chat"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      navigate(`/appointment/${item._id}`);
+                      scrollTo(0, 0);
+                    }}
+                    className="rounded-full border border-primary text-primary px-4 py-2 text-sm font-medium hover:bg-primary hover:text-white transition-all"
+                  >
+                    Book
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+      {showChat && currentRoom && chatDoctor && (
+        <Chat roomId={currentRoom._id} doctor={chatDoctor} onClose={() => setShowChat(false)} />
+      )}
     </div>
   );
 };
