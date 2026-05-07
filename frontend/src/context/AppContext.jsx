@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { io } from 'socket.io-client';
 
 export const AppContext = createContext();
 
@@ -11,6 +12,7 @@ const AppContextProvider = (props) => {
     const [doctors, setDoctors] = useState([]);
     const [token, setToken] = useState(localStorage.getItem("token") ? localStorage.getItem("token") : "");
     const [userData, setUserData] = useState(false);
+    const [socket, setSocket] = useState(null);
 
     const clearSession = () => {
         localStorage.removeItem("token");
@@ -59,6 +61,16 @@ const AppContextProvider = (props) => {
     useEffect(() => {
         if (token) {
             loadUserProfileData();
+            const newSocket = io(backendUrl, {
+                auth: { token }
+            });
+            setSocket(newSocket);
+            return () => newSocket.close();
+        } else {
+            if (socket) {
+                socket.close();
+                setSocket(null);
+            }
         }
     }, [token]);
 
@@ -73,6 +85,7 @@ const AppContextProvider = (props) => {
         userData,
         setUserData,
         loadUserProfileData,
+        socket,
     };
 
     return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;

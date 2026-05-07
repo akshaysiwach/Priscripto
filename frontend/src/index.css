@@ -14,7 +14,7 @@
 
 @media (max-width: 740px) {
   .active p {
-    @apply text-white bg-black;
+    @apply text-white bg-blue-600 px-3 py-1 rounded-full;
   }
 }
 

@@ -2,13 +2,20 @@ import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { DoctorContext } from '../../context/DoctorContext'
 import { assets } from '../../assets/assets'
 import { AppContext } from '../../context/AppContext'
+import Chat from '../../components/Chat'
+import VideoCall from '../../components/VideoCall'
 
 const DEFAULT_PROFILE_IMAGE = 'https://i.pravatar.cc/150?img=47'
 
 const DoctorDashboard = () => {
-  const { dToken, dashData, getDashData, cancelAppointment, completeAppointment, profileData, getProfileData, toggleAvailability } = useContext(DoctorContext)
+  const { dToken, dashData, getDashData, cancelAppointment, completeAppointment, profileData, getProfileData, toggleAvailability, backendUrl } = useContext(DoctorContext)
   const { slotDateFormat, currency } = useContext(AppContext)
   const [activeHistory, setActiveHistory] = useState('all')
+  const [showChat, setShowChat] = useState(false)
+  const [showVideo, setShowVideo] = useState(false)
+  const [chatRoom, setChatRoom] = useState(null)
+  const [chatPatient, setChatPatient] = useState(null)
+  const [loadingChatRoom, setLoadingChatRoom] = useState(false)
 
   useEffect(() => {
     if (dToken) {
@@ -16,6 +23,70 @@ const DoctorDashboard = () => {
       getProfileData()
     }
   }, [dToken])
+
+  const openChatWithPatient = async (patientId, patient) => {
+    if (!patientId) {
+      alert('Patient details are required to open chat.')
+      return
+    }
+
+    try {
+      setLoadingChatRoom(true)
+      const response = await fetch(`${backendUrl}/api/chat/doctor/room`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          dToken,
+        },
+        body: JSON.stringify({ userId: patientId }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        setChatRoom(data.room)
+        setChatPatient(patient)
+        setShowChat(true)
+      } else {
+        alert(data.message || 'Unable to open chat room.')
+      }
+    } catch (error) {
+      console.error(error)
+      alert('Unable to open chat room. Please try again.')
+    } finally {
+      setLoadingChatRoom(false)
+    }
+  }
+
+  const openVideoWithPatient = async (patientId, patient) => {
+    if (!patientId) {
+      alert('Patient details are required to open video call.')
+      return
+    }
+
+    try {
+      setLoadingChatRoom(true)
+      const response = await fetch(`${backendUrl}/api/chat/doctor/room`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          dToken,
+        },
+        body: JSON.stringify({ userId: patientId }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        setChatRoom(data.room)
+        setChatPatient(patient)
+        setShowVideo(true)
+      } else {
+        alert(data.message || 'Unable to open video room.')
+      }
+    } catch (error) {
+      console.error(error)
+      alert('Unable to open video room. Please try again.')
+    } finally {
+      setLoadingChatRoom(false)
+    }
+  }
 
   const statusClass = (status) => {
     if (status === 'completed') return 'bg-emerald-50 text-emerald-700 border-emerald-100'
@@ -133,6 +204,22 @@ const DoctorDashboard = () => {
         </button>
       </div>
 
+      <div className='mt-6 flex gap-4'>
+        <p className='text-sm text-slate-500'>Use chat buttons on appointments below to open a real patient-specific room.</p>
+      </div>
+
+      {showChat && chatRoom && chatPatient && (
+        <Chat roomId={chatRoom._id} patient={chatPatient} onClose={() => setShowChat(false)} />
+      )}
+      {showVideo && chatRoom && chatPatient && (
+        <VideoCall
+          roomId={chatRoom._id}
+          isInitiator={false}
+          remoteLabel={chatPatient?.name || 'Patient'}
+          onClose={() => setShowVideo(false)}
+        />
+      )}
+
       <div className='mt-8 overflow-hidden rounded-2xl border bg-white'>
         <div className='border-b px-5 py-4'>
           <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between'>
@@ -178,6 +265,20 @@ const DoctorDashboard = () => {
                 <p className='text-green-500 text-xs font-medium'>Completed</p>
               ) : (
                 <div className='flex gap-2'>
+                  <button
+                    type='button'
+                    onClick={() => openChatWithPatient(item.userData?._id || item.userId, item.userData)}
+                    className='rounded-full border border-blue-500 text-blue-500 px-3 py-1 text-xs font-medium hover:bg-blue-500 hover:text-white transition-all'
+                  >
+                    Chat
+                  </button>
+                  <button
+                    type='button'
+                    onClick={() => openVideoWithPatient(item.userData?._id || item.userId, item.userData)}
+                    className='rounded-full border border-green-500 text-green-500 px-3 py-1 text-xs font-medium hover:bg-green-500 hover:text-white transition-all'
+                  >
+                    Video
+                  </button>
                   <img onClick={() => cancelAppointment(item._id)} className='w-10 cursor-pointer' src={assets.cancel_icon} alt='' />
                   <img onClick={() => completeAppointment(item._id)} className='w-10 cursor-pointer' src={assets.tick_icon} alt='' />
                 </div>

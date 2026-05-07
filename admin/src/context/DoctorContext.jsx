@@ -1,6 +1,7 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { io } from 'socket.io-client';
 
 export const DoctorContext = createContext();
 
@@ -15,6 +16,7 @@ const DoctorContextProvider = (props) => {
     const [appointments, setAppointments] = useState([]);
     const [dashData, setDashData] = useState(false);
     const [profileData, setProfileData] = useState(false);
+    const [socket, setSocket] = useState(null);
 
     const doctorHeaders = { headers: { dToken } };
 
@@ -141,6 +143,21 @@ const DoctorContextProvider = (props) => {
         }
     };
 
+    useEffect(() => {
+        if (dToken) {
+            const newSocket = io(backendUrl, {
+                auth: { token: dToken }
+            });
+            setSocket(newSocket);
+            return () => newSocket.close();
+        } else {
+            if (socket) {
+                socket.close();
+                setSocket(null);
+            }
+        }
+    }, [dToken]);
+
     return (
         <DoctorContext.Provider
             value={{
@@ -162,6 +179,7 @@ const DoctorContextProvider = (props) => {
                 getProfileData,
                 toggleAvailability,
                 changePassword,
+                socket,
             }}
         >
             {props.children}
